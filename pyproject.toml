@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "margayexample"
+version = "0.1.0"
+description = ""
+authors = ["Max Nikitenko"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+margay = "^0.2.0"
+
+[tool.poetry.group.dev.dependencies]
+docker-compose = "^1.29.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

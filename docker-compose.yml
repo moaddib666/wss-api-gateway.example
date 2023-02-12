@@ -1,0 +1,59 @@
+version: '3.2'
+
+services:
+
+  backend-service:
+    image: backend:python3
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      MARGAY_TRANSPORT_DSN: "amqp://user:bitnami@rabbitmq:5672/"
+    command:
+      - python
+      - worker.py
+    depends_on:
+      - margay
+    restart: always
+
+  client-service:
+    image: backend:python3
+    environment:
+      MARGAY_AUTH_SECRET: "SuperSecret"
+      MARGAY_DSN: "ws://margay:8080"
+    depends_on:
+      - backend-service
+    command:
+      - tail
+      - -f
+      - /dev/null
+
+  margay:
+    image: docker.io/moaddib666/margay:latest
+    ports:
+      - 8080:8080
+    environment:
+      MARGAY_TRANSPORT_DSN: "amqp://user:bitnami@rabbitmq:5672/"
+      MARGAY_AUTH_SECRET: "SuperSecret"
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  rabbitmq:
+    image: docker.io/bitnami/rabbitmq:3.11
+    ports:
+      - '4369:4369'
+      - '5551:5551'
+      - '5552:5552'
+      - '5672:5672'
+      - '25672:25672'
+      - '15672:15672'
+    environment:
+      - RABBITMQ_SECURE_PASSWORD=yes
+      - RABBITMQ_LOGS=-
+    volumes:
+      - 'rabbitmq_data:/bitnami/rabbitmq/mnesia'
+
+volumes:
+  rabbitmq_data:
+    driver: local
